@@ -7,8 +7,10 @@
 
 %!  is_well_formed(+Clause:clause) is det
 % true if the clause is well formed
-is_well_formed(X) :- atom(X).
-is_well_formed(neg(X)):- is_well_formed(X).
+is_well_formed(X) :- 
+    atom(X).
+is_well_formed(neg(X)):- 
+    is_well_formed(X).
 is_well_formed(and(X,Y)):- 
     is_well_formed(X), 
     is_well_formed(Y).
