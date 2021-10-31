@@ -25,6 +25,9 @@ translated_to_definite(or(A,B),[A:-neg(B)]):-
 translated_to_definite(or(neg(A),neg(B)),:-and(A,B)):-
     atom(A),
     atom(B).
+translated_to_definite(or(neg(A),neg(B)),(:-A,B)):-
+    atom(A),
+    atom(B).
 translated_to_definite(A,[A:-true]):-atom(A).
 translated_to_definite(and(A,B),Result):-
     translated_to_definite(A,Temp1),
