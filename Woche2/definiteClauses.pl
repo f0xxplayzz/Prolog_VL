@@ -5,6 +5,7 @@
 */
 :-module(definiteClauses,[translated_to_definite/2]).
 :-use_module(cnf).
+:-use_module(wohlgeformt).
 
 %!  translated_to_definite(+CNF:string,-DefiniteClauses:list) is det
 %!  translated_to_definite(+CNF:string,+DefiniteClauses:list) is det
@@ -41,6 +42,9 @@ translated_to_definite(and(A,B),Result):-
 % it is possible. if not the predicate will return false. Can also
 % be used to check if a List of definite clauses is the same as a
 % clause that is specified
+as_definite_clause(A,_):- 
+    \+ is_well_formed(A),
+    !,fail.
 as_definite_clause(A,Result):-
     translated_to_CNF(A,Temp),
     translated_to_definite(Temp,Result).

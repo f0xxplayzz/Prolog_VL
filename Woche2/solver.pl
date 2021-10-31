@@ -3,6 +3,7 @@
  * is constructable or not.
  */
 :-module(solver,[constructable_with/2]).
+:-use_module(wohlgeformt).
 
 %!  scompare(+List1:list,+List2:list) is det
 % checks if the two lists don't have same Literals with different
@@ -76,6 +77,9 @@ not_true_with(xor(X,Y),Result):-
 % returns all possible Configuration of Literals with their values
 % with that the Clause will be evaluated as true. Will return
 % false if the clause is a contradiction
+constructable_with(A,_):- 
+    \+ is_well_formed(A),
+    !,fail.
 constructable_with(X,[X=true]):- atom(X).
 constructable_with(neg(X),[X=false]):- atom(X).
 constructable_with(and(X,Y),Result):- 

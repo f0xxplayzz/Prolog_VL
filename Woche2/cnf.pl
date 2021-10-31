@@ -3,6 +3,7 @@
  * or to CNF.
  */
 :-module(cnf,[translated_to_CNF/2]).
+:-use_module(wohlgeformt).
 
 %!  translated_with_rule1(+Clause:string,-Result:string) is det
 %!  translated_with_rule1(+Clause:string,+Result:string) is det
@@ -74,6 +75,9 @@ translated_with_rule3(or(A,B),or(Result_A,Result_B)):-
 % this predicate checks if a given Clause is a CNF of another or
 % generates the CNF of a clause. This is done by applying all 3 Rules
 % on the clause.
+translated_to_CNF(A,_):- 
+    is_well_formed(A),
+    !,fail.
 translated_to_CNF(A,Result):-
     translated_with_rule1(A,T),
     translated_with_rule2(T,T2),
