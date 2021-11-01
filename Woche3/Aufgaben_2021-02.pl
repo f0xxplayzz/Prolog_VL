@@ -129,3 +129,24 @@ station_is_on_line(X,Line):-
 %	Stations = [leicester_square, piccadilly_circus, oxford_circus, green_park],
 %	Lines = [jubilee, victoria, bakerloo, piccadilly, northern] ;
 %	false.
+
+% Aufgabe 6:
+line(central,[bond_street,oxford_circus,tottenham_court_road]).
+line(jubilee,[bond_street,green_park,charing_cross]).
+line(piccadilly,[green_park,piccadilly_circus,leicester_square]).
+line(victoria,[green_park,oxford_circus]).
+line(bakerloo,[oxford_circus,piccadilly_circus,charing_cross]).
+line(northern,[tottenham_court_road,leicester_square,charing_cross]).
+
+stations_on_line(Line,Stations):-line(Line,Stations).
+
+connected_(X,Y,Line):-
+	stations_on_line(Line,Temp),
+	con_(X,Y,Temp).
+
+con_(_,_,[_]):-fail.
+con_(X,Y,[H|[T|_]]):-X == H, Y == T.
+con_(X,Y,[H|[T|Ts]]):-
+	\+ X == H,
+	\+ Y == T,
+	con_(X,Y,[T|Ts]).
