@@ -1,6 +1,5 @@
 
 %%% The London Underground example %%%
-:-use_module(library(clpfd)).
 
 connected(bond_street,oxford_circus,central).
 connected(oxford_circus,tottenham_court_road,central).
@@ -32,16 +31,19 @@ reachable_(X,Y,[Z|R]):-
 % Here starts my own code
 on_line(X,Y,Line):- connected(X,Y,Line).
 
+%!	remove_duplicates(+List:list,-Result:list) is det
+% remove_duplicates is apredicate to remove all duplicates from a list
 remove_duplicates([],[]).
-
 remove_duplicates([H | T], List) :- 
 	member(H, T),
 	remove_duplicates( T, List).
-
 remove_duplicates([H | T], [H|T1]) :- 
 	\+member(H, T), 
 	remove_duplicates( T, T1).
 
+%! reachable(+Start:station,+Goal:station,-Intermediate:list,-Lines:list) is nondet
+% this predicate is a variation to the reachable/3 predicate. This predicate also 
+% returns all the visited lines. 
 reachable(X,Y,Intermediate,Lines):-
 	reachable_(X,Y,Intermediate0,Lines0),
 	reverse(Intermediate0, Intermediate),
@@ -54,14 +56,32 @@ reachable_(X,Y,[Z|R],[Line|Lines]):-
 	reachable_(Z,Y,R,Lines).
 
 %Aufgabe 4
+%!	connected_sym(+Station1:station,+Station2:station,-Line:line) is det
+%!	connected_sym(+Station1:station,+Station2:station,+Line:line) is det
+%!	connected_sym(+Station1:station,-Station2:station,-Line:line) is nondet
+%!	connected_sym(-Station1:station,+Station2:station,-Line:line) is nondet
+%!	connected_sym(-Station1:station,-Station2:station,-Line:line) is nondet
+% this predicate is a symmetrical variation to the normal connected predicate
+% only difference is that it works symmetrically
 connected_sym(X,Y,Line):-connected(X,Y,Line);
 	connected(Y,X,Line).
 
+%!	same_line_sym(+Station1:station,+Station2:station) is det
+%!	same_line_sym(+Station1:station,-Station2:station) is nondet
+%!	same_line_sym(-Station1:station,+Station2:station) is nondet
+%!	same_line_sym(-Station1:station,-Station2:station) is nondet
+% this predicate is the same as the same_line predicate except that is working
+% symmetrically
 same_line_sym(X,Y):-
 	connected_sym(X,Y,_).
 same_line_sym(X,Y):-
-	connected_sym(X,Z,L),connected_sym(Z,Y,L).
+	connected_sym(X,Z,L),connected_sym(Z,Y,L),\+ Y==X.
 
+%! reachable_sym(+Start:station,+Goal:station,+Intermediate:list,+Lines:list) is det
+%! reachable_sym(+Start:station,+Goal:station,+Intermediate:list,-Lines:list) is det
+%! reachable_sym(+Start:station,+Goal:station,-Intermediate:list,+Lines:list) is nondet
+%! reachable_sym(+Start:station,+Goal:station,-Intermediate:list,-Lines:list) is nondet
+% this is the symmetrical version of the reachable predicate
 reachable_sym(X,Y,Intermediate,Lines):-
 	reachable_sym_(X,Y,Intermediate,Lines0,0),
 	remove_duplicates(Lines0,Lines).
@@ -79,9 +99,18 @@ reachable_sym_(X,Y,[Z|R],[Line|Lines],Count):-
 	\+ member(X,R).
 
 %Aufgabe 5:
+%!	stations(+Line:line,+Stations:list) is det
+%!	stations(+Line:line,-Stations:list) is det
+%!	stations(-Line:line,-Stations:list) is nondet
+% this predicate return all stationson a specified line
 stations(Line,Stations):-
 	setof(X,station_is_on_line(X,Line),Stations).
 
+%!	station_is_on_line(+Sation:station,+Line:line) is det
+%!	station_is_on_line(+Sation:station,-Line:line) is nondet
+%!	station_is_on_line(-Sation:station,+Line:line) is nondet
+%!	station_is_on_line(-Sation:station,-Line:line) is nondet
+% this predicate returns true if the station is on the line
 station_is_on_line(X,Line):-
 	connected(X,_,Line);
 	connected(_,X,Line).
@@ -129,24 +158,3 @@ station_is_on_line(X,Line):-
 %	Stations = [leicester_square, piccadilly_circus, oxford_circus, green_park],
 %	Lines = [jubilee, victoria, bakerloo, piccadilly, northern] ;
 %	false.
-
-% Aufgabe 6:
-line(central,[bond_street,oxford_circus,tottenham_court_road]).
-line(jubilee,[bond_street,green_park,charing_cross]).
-line(piccadilly,[green_park,piccadilly_circus,leicester_square]).
-line(victoria,[green_park,oxford_circus]).
-line(bakerloo,[oxford_circus,piccadilly_circus,charing_cross]).
-line(northern,[tottenham_court_road,leicester_square,charing_cross]).
-
-stations_on_line(Line,Stations):-line(Line,Stations).
-
-connected_(X,Y,Line):-
-	stations_on_line(Line,Temp),
-	con_(X,Y,Temp).
-
-con_(_,_,[_]):-fail.
-con_(X,Y,[H|[T|_]]):-X == H, Y == T.
-con_(X,Y,[H|[T|Ts]]):-
-	\+ X == H,
-	\+ Y == T,
-	con_(X,Y,[T|Ts]).
