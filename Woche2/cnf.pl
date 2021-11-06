@@ -76,7 +76,7 @@ translated_with_rule3(or(A,B),or(Result_A,Result_B)):-
 % generates the CNF of a clause. This is done by applying all 3 Rules
 % on the clause.
 translated_to_CNF(A,_):- 
-    is_well_formed(A),
+    \+ is_well_formed(A),
     !,fail.
 translated_to_CNF(A,Result):-
     translated_with_rule1(A,T),
