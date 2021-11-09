@@ -1,4 +1,5 @@
 :-use_module(manhattan_distances).
+:- dynamic '$next_bound'/1.
 
 left([A,0,C,D,E,F,H,I,J],[0,A,C,D,E,F,H,I,J]).
 left([A,B,C,D,0,F,H,I,J],[A,B,C,0,D,F,H,I,J]).
@@ -60,36 +61,48 @@ estimate(NewState,Est):-has_manhattan_heuristic(NewState,Est).
 
 goal([0,1,2,3,4,5,6,7,8]).
 
-solve_astar(Node, Path/Cost) :-
-	estimate(Node, Estimate),
-	astar([[Node]/0/Estimate], RevPath/Cost/_),
+solve_idastar(Node,Path) :-
+	retract('$next_bound'(_)), fail   % clear old $next_bound
+	;
+	asserta('$next_bound'(0)),        % initialize Bound
+	estimate(Node,Estimate),
+	idastar(Node/0/Estimate,[], RevPath),
 	reverse(RevPath, Path).
 
-move_astar([Node|Path]/Cost/_, [NextNode,Node|Path]/NewCost/Est) :-
-	move(Node, NextNode, StepCost),
-	\+ member(NextNode, Path),
-	NewCost is Cost + StepCost,
-	estimate(NextNode, Est).
 
-expand_astar(Path, ExpPaths) :-
-	findall(NewPath, move_astar(Path,NewPath), ExpPaths).
+idastar(Node/Cost/Estimate,Path,Solution) :-
+	retract('$next_bound'(Bound)),    % get current Bound
+	assert('$next_bound'(999999)),    % initialize next Bound (INFINITE)
+	Heuristic is Cost+Estimate,		  % heuristic Value of Node
+	(	depthfirst([Node]/Cost,Heuristic,Bound,Solution)
+	%	find Solution; if not change Bound
+	    ;
+	%   and retry
+		'$next_bound'(NextBound),
+		NextBound < 999999,           % Bound must be finite ( < FINITE)
+		idastar(Node/Cost/Estimate,Path,Solution)   % retry with new Bound
+	).
 
-get_best([Path], Path) :- !.
-get_best([Path1/Cost1/Est1,_/Cost2/Est2|Paths], BestPath) :-
-	Cost1 + Est1 =< Cost2 + Est2,
-	!,
-	get_best([Path1/Cost1/Est1|Paths], BestPath).
-get_best([_|Paths], BestPath) :-
-	get_best(Paths, BestPath).
+depthfirst([Node|Nodes]/_,Cost,Bound,[Node|Nodes]) :-
+	goal(Node),
+	Cost =< Bound.                    % succeed: Solution found
+depthfirst([Node|Nodes]/Cost,Heuristic,Bound,Solution) :-
+	Heuristic =< Bound,				  % Node within Bound
+	move(Node,NextNode,C1),			  % expand Node
+	\+ member(NextNode,Nodes),        % loop check
+	estimate(NextNode,C2),
+	NewCost is Cost+C1,
+	NewHeuristic is NewCost+C2,
+	depthfirst([NextNode,Node|Nodes]/NewCost,NewHeuristic,Bound,Solution).
+depthfirst(_,Cost,Bound,_) :-
+	Cost > Bound,					  % beyond current Bound
+	update_next_bound(Cost),		  % just update the Bound
+	fail.    
 
-astar(Paths, Path) :-
-	get_best(Paths, Path),
-	Path = [Node|_]/_/_,
-	goal(Node).
-
-astar(Paths, SolutionPath) :-
-	get_best(Paths, BestPath),
-	select(BestPath, Paths, OtherPaths),
-	expand_astar(BestPath, ExpPaths),
-	append(OtherPaths, ExpPaths, NewPaths),
-	astar(NewPaths, SolutionPath).
+update_next_bound(NewBound) :-
+    '$next_bound'(Bound),
+    (	Bound =< NewBound, !          % do nothing if not necessary
+    ;
+        retract('$next_bound'(Bound)),% update the Bound
+        asserta('$next_bound'(NewBound))
+    ).
