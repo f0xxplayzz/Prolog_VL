@@ -1,5 +1,9 @@
 :-module(manhattan_distances,[a/2,b/2,c/2,d/2,e/2,f/2,g/2,h/2,i/2]).
 
+% Tabled version for Mnahttan distances to reduce time complexity
+% [a,b,c,d,e,f,g,h,i] is the puzzle field
+% first value of each fact is the tile placed in the field,
+% the second gives the manhttan distance of that tile to its correct position 
 a(0,0). a(1,1). a(2,2). a(3,1). a(4,2). a(5,3). a(6,2). a(7,3). a(8,4).
 b(0,1). b(1,0). b(2,1). b(3,2). b(4,1). b(5,2). b(6,3). b(7,2). b(8,3).
 c(0,2). c(1,1). c(2,0). c(3,3). c(4,2). c(5,1). c(6,4). c(7,3). c(8,2).

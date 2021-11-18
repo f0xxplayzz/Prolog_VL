@@ -1,6 +1,8 @@
 :-use_module(manhattan_distances).
 :- dynamic '$next_bound'/1.
 
+% Move predicates
+% describes all possible moves in a puzzle
 left([A,0,C,D,E,F,H,I,J],[0,A,C,D,E,F,H,I,J]).
 left([A,B,C,D,0,F,H,I,J],[A,B,C,0,D,F,H,I,J]).
 left([A,B,C,D,E,F,H,0,J],[A,B,C,D,E,F,0,H,J]).
@@ -29,6 +31,9 @@ down([0,B,C,D,E,F,H,I,J],[D,B,C,0,E,F,H,I,J]).
 down([A,0,C,D,E,F,H,I,J],[A,E,C,D,0,F,H,I,J]).
 down([A,B,0,D,E,F,H,I,J],[A,B,F,D,E,0,H,I,J]).
 
+% Misplaced tile heuristic
+% Not used anymore, because a better heuristic was implemented
+% Just still here to use for demonstration
 has_missplaced_tiles([],[],0).
 has_missplaced_tiles([A|T],[B|T2],Result):-
     dif(A,B),
@@ -40,6 +45,9 @@ has_missplaced_tiles([A|T],[B|T2],Result):-
     !,
     has_missplaced_tiles(T,T2,Result).
 
+% Manhattan heuristic
+% uses module Manhttan_distances for calculation
+%! has_manhattan_heuristic(+Puzzle:list,-Heuristic:Int) is det
 has_manhattan_heuristic([A,B,C,D,E,F,G,H,I],Dist):-
     a(A,DistA),
     b(B,DistB),

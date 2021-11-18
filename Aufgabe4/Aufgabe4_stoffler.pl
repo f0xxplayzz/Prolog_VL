@@ -70,14 +70,12 @@ show_plan :-
 	listing(move/3).
 
 
-%%	do(+Konfiguration:list) is nondet.
+%%	do(+Konfiguration:list,+State:list,-Moves:list) is nondet.
 %  Konfiguration ist die beschreibung der Zustand der Bl�cke, die man
 %  erreichen will. Die Konfiguration ist eine Liste von on/2 Klauseln
 %
-%  Beispiel: do([on(c,a),on(a,table)]).
-%
 do(Glist,State,Result) :-
-     ordergoals(Glist,Opt_Glist),
+     order_goals(Glist,Opt_Glist),
      valid(Opt_Glist),
      do_all(Opt_Glist,Opt_Glist,State,[],State,Moves),
      reverse(Moves,Result).
@@ -85,16 +83,16 @@ do(Glist,State,Result) :-
 valid([on(_,B),on(_,D),on(_,F)]):-
      dif(B,D),
      dif(B,F),
-     dif(D,F).
+     dif(D,F). %Every block stand on another block then the rest
 valid([on(_,B),on(_,D),on(_,_)]):-
      \+ dif(B,D),
-     \+ dif(B,table),!.
+     \+ dif(B,table),!. % two blocks on the table
 valid([on(_,B),on(_,_),on(_,F)]):-
      \+ dif(B,F),
-     \+ dif(B,table),!.
+     \+ dif(B,table),!. % two blocks on the table
 valid([on(_,_),on(_,D),on(_,F)]):-
      \+ dif(F,D),
-     \+ dif(F,table),!
+     \+ dif(F,table),! % two blocks on the table
      .		   /* Nur Platzhalter, siehe Aufgabe */
 
 do_all([G|R],Allgoals,State,Moves,NewState,NewMoves) :-
@@ -133,17 +131,21 @@ clear_off(A,State,Moves,[on(X,table)|ActualState],[move(X,A,table)|NewMoves]) :-
      clear_off(X,State,Moves,NewState,NewMoves),
      select(on(X,A),NewState,ActualState).        % N.B. recursion (but not TCO)
 
-
-ordergoals(Input,[on(A,table)|P2]):-
+%! order_goals(+Goals:list,-Ordered_Goals:list) is det
+% order the goals so the shortest solutions can be found by the program
+% first fact must be a fact, where a Block is on the table,
+% second the fact where a block is on thtaq block on the table or another table fact
+% and so on
+order_goals(Input,[on(A,table)|P2]):-
      length(Input,3),
      member(on(A,table),Input),!,
      select(on(A,table),Input,P1),
-     ordergoals(P1,P2).
-ordergoals(Input,[on(A,table)|P1]):-
+     order_goals(P1,P2).
+order_goals(Input,[on(A,table)|P1]):-
      length(Input,2),
      member(on(A,table),Input),
      select(on(A,table),Input,P1),!.
-ordergoals(Input,[on(A,B)|P1]):-
+order_goals(Input,[on(A,B)|P1]):-
      length(Input,2),
      member(on(A,B),Input),
      member(on(_,A),Input),
