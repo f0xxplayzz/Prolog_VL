@@ -1,0 +1,2 @@
+Parsbaum:satz(wsatz(wenn,pp(hinter,nom(fliegen)),sub(nom(fliegen)),verb(fliegen)),dsatz(dann,verb(fliegen),sub(nom(fliegen)),obj(nom(fliegen)),vv(voraus)))
+Parsbaum:satz(wsatz(wenn,pp(hinter,nom(fliegen)),sub(nom(fliegen)),verb(fliegen)),dsatz(dann,verb(fliegen),sub(nom(fliegen)),obj(nom(fliegen)),vv(voraus)))
