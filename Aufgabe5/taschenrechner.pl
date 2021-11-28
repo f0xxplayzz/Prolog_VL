@@ -66,9 +66,18 @@ single_char('=').
 single_char('<').
 single_char('>').
 
+%! calc(+Input:list,-Output:number) is det.
+% this predicate calculates a term by using DCGs to interpret
+% the term and execute the right operations. clpfd is also used
+% to get declarative arithmetic expressions. As result you get 
+% the result of a term.
 calc(Input,Result):-
 	expr(Result,Input,[]).
 
+% Grammar used by the DCG
+% grammar used which is explained here : 
+% http://www.cs.cornell.edu/courses/cs211/2004sp/handout/lecture05parsing.pdf
+% grammar should be deterministic
 expr(X) -->
 	term(T1),
 	{X is T1}. 
@@ -122,6 +131,11 @@ term2(X) -->
 	[')'],
 	{X is Y}.
 
+
+%! calcIO is nondet
+% User Interface for using the calculator. Floating point numbers
+% have to be written with a comma not a point. Each Term has to 
+% end with a "." character.
 calcIO:-
 	prompt(Old_Prompt,'Term eingeben oder "quit."'),
 	scan_in(Input),

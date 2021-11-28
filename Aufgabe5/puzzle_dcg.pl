@@ -31,25 +31,31 @@ down([A,B,0,D,E,F,H,I,J],[A,B,F,D,E,0,H,I,J]).
 
 goal([0,1,2,3,4,5,6,7,8]).
 
+%! solve(+Input:list,-output:list) is nondet
+% this predicate solves a given constellation for the puzzle
+% can find all solutions, no duplicate constellations of the puzzle allowed
+% in the solution. Is implemnented using DCGs
+% as search strategy IDAstar is used
 solve(X,[X|Result]):-
     solver(X,1,Result,[]).
 
-solver(X,D) -->
-    mov(X,0,D,[X]).
-solver(X,D) -->
-    {NewDepth is D +1},
-    solver(X,NewDepth).
 
-mov(X,Cost,Bound,L1) -->
+solver(X,D) -->
+    move(X,0,D,[X]). %try to solve with current bound
+solver(X,D) -->
+    {NewDepth is D +1}, % deepening step
+    solver(X,NewDepth). % try to solve with new bound
+
+move(X,Cost,Bound,L1) --> % left move
     [Y],
     {Cost #=< Bound,
     left(X,Y),
-    dif(X,Y),
-    \+member(Y,L1),
+    dif(X,Y), % check that move has changed anything
+    \+member(Y,L1), % check that state hasnt apperaed before
     has_manhattan_heuristic(X,A),
     NewCost is Cost + 1 +A},
-    mov(Y,NewCost,Bound,[Y|L1]).
-mov(X,Cost,Bound,L1) -->
+    move(Y,NewCost,Bound,[Y|L1]).
+move(X,Cost,Bound,L1) --> % right move
     [Y],
     {Cost #=< Bound,
     right(X,Y),
@@ -57,8 +63,8 @@ mov(X,Cost,Bound,L1) -->
     \+member(Y,L1),
     has_manhattan_heuristic(X,A),
     NewCost is Cost + 1 +A},
-    mov(Y,NewCost,Bound,[Y|L1]).
-mov(X,Cost,Bound,L1) -->
+    move(Y,NewCost,Bound,[Y|L1]).
+move(X,Cost,Bound,L1) --> %up move
     [Y],
     {Cost #=< Bound,
     up(X,Y),
@@ -66,8 +72,8 @@ mov(X,Cost,Bound,L1) -->
     \+member(Y,L1),
     has_manhattan_heuristic(X,A),
     NewCost is Cost + 1 +A},
-    mov(Y,NewCost,Bound,[Y|L1]).
-mov(X,Cost,Bound,L1) -->
+    move(Y,NewCost,Bound,[Y|L1]).
+move(X,Cost,Bound,L1) --> % down move
     [Y],
     {Cost #=< Bound,
     down(X,Y),
@@ -75,14 +81,17 @@ mov(X,Cost,Bound,L1) -->
     \+member(Y,L1),
     has_manhattan_heuristic(X,A),
     NewCost is Cost + 1 +A},
-    mov(Y,NewCost,Bound,[Y|L1]).
-mov(X,_,_,_) -->
+    move(Y,NewCost,Bound,[Y|L1]).
+move(X,_,_,_) -->
     [],
     {goal(X)}.
 
 
 estimate(NewState,Est):-has_manhattan_heuristic(NewState,Est).
 
+% Manhattan heuristic
+% uses module Manhttan_distances for calculation
+%! has_manhattan_heuristic(+Puzzle:list,-Heuristic:Int) is det
 has_manhattan_heuristic([A,B,C,D,E,F,G,H,I],Dist):-
     a(A,DistA),
     b(B,DistB),

@@ -152,6 +152,9 @@ vv(X) -->
 parse(Input,Tree) :-
   satz(Tree,Input,[]).
 
+%! parseIO is nondet
+% parseIO is a commanline interface for users to parse sentences on the commandd line
+% the input is also via the command line and the output to
 parseIO:-
         prompt(OldPrompt,'Satz eingeben oder "quit.": '),
         scan_in(Input),
@@ -163,6 +166,9 @@ parseIO:-
         writeln(Out),!,
         parseIO.
 
+%! parseFile is nondet
+% Same as the parseIO predicate, but this time you can specify a file to read the sentences from
+% each sentence has to stop with a "." char. Output is via the command line.
 parseFile:-
         prompt(_,'Welche Datei soll geparst werden oder "quit.": '),
         read(File),
@@ -183,6 +189,9 @@ parseFile_help:-
         writeln(Out),!,
         parseFile_help.
 
+%! parseFile_to_file is nondet.
+% same as the parseFile predicate, but now you can specify a file where you want to
+% have your results written.
 parseFile_to_file:-
         prompt(_,'Welche Datei soll geparst werden oder "quit.": '),
         read(File),
