@@ -5,7 +5,7 @@
  * Sterling & Shapiro, The Art of Prolog
  * MIT Press 1986, Seite 315, 316
  *
- * Verï¿½ndert, erweitert und an SWI-Prolog
+ * Verändert, erweitert und an SWI-Prolog
  * angepasst von AVH, 2010
  *
  */
@@ -25,24 +25,20 @@ cleanup_shell :- retractall(untrue(_)).
 % and can ask for a "why" explanation.
 solve( Goal) :-
 	prompt(Old, '(please answer: "yes.", "no.", or "why."):: '),
-	solve( Goal, [],Reasoning),
-	!, prompt(_,Old),
-	prompt(Old,'(Do u want the prove?(yes./no.))::'),
-	read( Answer),
-	(Answer==yes ->write(Reasoning);true).
+	solve( Goal, []),
+	!, prompt(_,Old).
 solve( Goal) :-
 	nl, write('Sorry, but I cannot find any (further) solutions for '),
 	writeln(Goal).
 
 
 
-solve( true, _Rules, []) :- !.
-solve( (A,B), Rules,Reasoning) :-
-	!, solve( A, Rules, R1), solve( B, Rules, R2),
-	append(R1,R2,Reasoning).
-solve( A, Rules,[A|Reasoning]) :-
-	clause( A, B), solve( B, [rule(A,B)|Rules],Reasoning).
-solve( A, Rules,A) :-
+solve( true, _Rules) :- !.
+solve( (A,B), Rules) :-
+	!, solve( A, Rules), solve( B, Rules).
+solve( A, Rules) :-
+	clause( A, B), solve( B, [rule(A,B)|Rules]).
+solve( A, Rules) :-
 	askable( A), \+ known(A),
 	ask( A, Answer), respond( Answer, A, Rules).
 
@@ -94,9 +90,38 @@ write_conjunction( A) :-
 
 /*
  * askable(A) muss im Expertensystem (Den Kern mit den Regeln)
- * definiert werden als Fakt fï¿½r alle Goals,A, die Abfragbar sein
- * sollen. SWI-Prolog verlangt ï¿½berdies wegen der Benutzung von
+ * definiert werden als Fakt für alle Goals,A, die Abfragbar sein
+ * sollen. SWI-Prolog verlangt überdies wegen der Benutzung von
  * assert/1 in der ersten respond/3 Klausel, dass diese
- * Goalprï¿½dikate als dynamic deklariert werden (wie oben untrue/1)
+ * Goalprädikate als dynamic deklariert werden (wie oben untrue/1)
  *
  */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

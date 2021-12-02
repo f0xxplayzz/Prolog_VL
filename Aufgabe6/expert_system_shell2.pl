@@ -29,7 +29,9 @@ solve( Goal) :-
 	!, prompt(_,Old),
 	prompt(Old,'(Do u want the prove?(yes./no.))::'),
 	read( Answer),
-	(Answer==yes ->write(Reasoning);true).
+	(Answer==yes ->
+        flatten(Reasoning,Out),
+        write(Out);true).
 solve( Goal) :-
 	nl, write('Sorry, but I cannot find any (further) solutions for '),
 	writeln(Goal).
@@ -39,7 +41,7 @@ solve( Goal) :-
 solve( true, _Rules, []) :- !.
 solve( (A,B), Rules,Reasoning) :-
 	!, solve( A, Rules, R1), solve( B, Rules, R2),
-	append(R1,R2,Reasoning).
+	append([R1],[R2],Reasoning).
 solve( A, Rules,[A|Reasoning]) :-
 	clause( A, B), solve( B, [rule(A,B)|Rules],Reasoning).
 solve( A, Rules,A) :-
