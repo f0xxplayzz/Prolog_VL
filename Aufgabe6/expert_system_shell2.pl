@@ -31,22 +31,27 @@ solve( Goal) :-
 	read( Answer),
 	(Answer==yes ->
         flatten(Reasoning,Out),
-        write(Out);true).
+        display_all(Out);true),
+	cleanup.
 solve( Goal) :-
 	nl, write('Sorry, but I cannot find any (further) solutions for '),
 	writeln(Goal).
 
+display_all([]):-!.
+display_all([A|B]):-
+	display_rule(A),
+	display_all(B).
 
-
-solve( true, _Rules, []) :- !.
+solve( true, _Rules,[]) :- !.
 solve( (A,B), Rules,Reasoning) :-
-	!, solve( A, Rules, R1), solve( B, Rules, R2),
-	append([R1],[R2],Reasoning).
-solve( A, Rules,[A|Reasoning]) :-
+	!, solve( A, Rules,R1), solve( B, Rules,R2),
+	append(R1,R2,Reasoning).
+solve( A, Rules,[rule(A,B)|Reasoning]) :-
 	clause( A, B), solve( B, [rule(A,B)|Rules],Reasoning).
-solve( A, Rules,A) :-
+solve( A, Rules,[rule(A)]) :-
 	askable( A), \+ known(A),
 	ask( A, Answer), respond( Answer, A, Rules).
+
 
 
 ask( A, Answer) :-
@@ -82,13 +87,21 @@ known( A) :- untrue( A).
 display_query( A) :-
 	write( A), write('?  ').
 
+display_rule(rule(A,true)):-
+	write('     '),
+	writeln(A).
 display_rule( rule(A,B)) :-
 	nl, write( '    IF  '),
 	write_conjunction(B),
 	write( '        THEN '), writeln(A), nl.
+display_rule(rule(A)):-
+	write('     '),
+	writeln(A).
 
 write_conjunction( (A,B)) :-
-	!, write(A), write(' AND '), write_conjunction(B).
+	!, write(A), 
+	write(' AND '), 
+	write_conjunction(B).
 write_conjunction( A) :-
 	writeln( A).
 
