@@ -56,3 +56,12 @@ nonOverlapping([H|T],[H2|T2],R) <=> H #\= H2 | nonOverlapping([H|T],T2,[H2|R]).
 nonOverlapping([H|_],[H2|_],_) <=> H #= H2 | false.
 nonOverlapping([H|T],[],R) <=> nonOverlapping(T,[H|R],[]).
 nonOverlapping([],_,_) <=> true.
+
+:-chr_constraint minOneLecturePerDay(?any).
+:-chr_constraint minOneLecturePerDay(?any,?any,?any).
+:-chr_constraint lectureDay(?int).
+
+minOneLecturePerDay(A) <=> minOneLecturePerDay(A,[],[]),lectureDay(0).
+minOneLecturePerDay([H|T],A,B) <=> true | New #= (H-1) div 3, minOneLecturePerDay(T,[New|A],B).
+minOneLecturePerDay([],[H|T],A),lectureDay(C) <=> H #= C | NewC #= C +1 , minOneLecturePerDay([],T,A),lectureDay(NewC).
+minOneLecturePerDay([],[H|T],A),lectureDay(C) <=> H #\= C| minOneLecturePerDay([],T,[H|A]),lectureDay(C).
