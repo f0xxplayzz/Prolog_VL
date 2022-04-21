@@ -44,3 +44,15 @@ prime2(N) ==> N>2 | K #= N-1,prime2(K).
 
 sqrt(X,G) <=> var(G) |sqrt(X,1).
 sqrt(X,G) <=> T is G*G/X-1, abs(T)>0.0001 | Res is (G+X/G)/2, sqrt(X,Res).
+
+
+:-chr_constraint nonOverlapping(?any).
+:-chr_constraint nonOverlapping(?any,?any,?any).
+
+nonOverlapping(A) <=> nonOverlapping(A,[],[]).
+
+nonOverlapping([H|T],[],[]) <=> nonOverlapping(T,[H],[]).
+nonOverlapping([H|T],[H2|T2],R) <=> H #\= H2 | nonOverlapping([H|T],T2,[H2|R]).
+nonOverlapping([H|_],[H2|_],_) <=> H #= H2 | false.
+nonOverlapping([H|T],[],R) <=> nonOverlapping(T,[H|R],[]).
+nonOverlapping([],_,_) <=> true.

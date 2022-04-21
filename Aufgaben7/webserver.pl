@@ -32,8 +32,7 @@ say_root(_Request) :-
         ). 
 
 getFolders(Name,Folders):- setof(Entry,directory_member(Name,Entry,[recursive(false)]),Files),
-        select('Aufgaben7/webserver.pl',Files,Files2),
-        select('Aufgaben7/calcService.pl',Files2,Folders),!.
+        select('Aufgaben7/webserver.pl',Files,Folders),!.
 getFolders(Name,Folders):- !,setof(Entry,directory_member(Name,Entry,[recursive(false)]),Folders).
 
 getFiles([X],Result):-
